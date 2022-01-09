@@ -1,0 +1,2065 @@
+ __includes ["ed3d.nls"]   ; include the 3d map of the Emergency Dep.
+
+extensions [nw]            ; Network extension to manage graph
+
+breed [workers worker]     ; workers
+breed [patients patient]   ; patients
+breed [vertices vertex]    ; nodes for path of agents
+
+globals [
+  p-dismissed        ; a counter for patients dismissed
+
+  ; KPI monitors - duration
+  monitor-duration-LoS    ; Monitors for KPIs: Lenght of stay
+  monitor-duration-ESI-1  ; Monitor-duration LoS for ESI-1
+  monitor-duration-ESI-2  ; Monitor-duration LoS for ESI-2
+  monitor-duration-ESI-3  ; Monitor-duration LoS for ESI-3
+  monitor-duration-ESI-4  ; Monitor-duration LoS for ESI-4
+
+  patients-in-waiting-area ; n. of pat. waiting
+  monit-wait-x-triage  ; n-patients-waiting
+  monit-wait-x-visit    ; n-patients-waiting
+  monit-wait-x-exam    ; n-patients-waiting
+  monit-wait-x-XRAY    ; n-patients-waiting
+  monit-wait-x-OBI    ; n-patients-waiting
+  monit-wait-x-Consult  ; n-patients-waiting
+
+  monitor-p-dismissed-ESI-1 ;
+  monitor-p-dismissed-ESI-2 ;
+  monitor-p-dismissed-ESI-3 ;
+  monitor-p-dismissed-ESI-4 ; KPI monitors - dismission
+
+  monit-dtdt         ; utile?
+  monit-dtdt-esi1    ; KPI: door to doctor time of ESI 1 patients
+  monit-dtdt-esi2    ; KPI: door to doctor time of ESI 2 patients
+  monit-dtdt-esi3    ; KPI: door to doctor time of ESI 3 patients
+  monit-dtdt-esi4    ; KPI: door to doctor time of ESI 4 patients
+
+
+  ; time monitors
+  monit-seconds monit-minute  monit-hour  monit-day monit-year monit-weeks  ; minute, hours: from 0 to 59; day
+
+  monit-abandons     ; people leaving without being seen (LWBS)
+
+  seconds      ; time passing (corresponding to ticks)
+
+  ; var used to produce stochastic arrival times
+  expectedArrivalsPerIntervalStatic rightIntervalLimitsStatic
+  expectedArrivalsPerInterval       rightIntervalLimits
+  expectedArrivalsInAStep
+  expectedArrivalsInAStepInt fractionaryPart
+  expectedArrivalsArray
+  leftIntervalLimit
+
+  arrivi       ; n. of arrivals
+]
+
+patches-own [
+  task-name      ; the name of the task
+  entrance       ; entrance (to which node/task the patch is entrance)
+
+  ;list of patients/operators waiting to work
+  pat-wait-list
+  op-wait-list
+
+  ;var containing information about workers
+  TYPE-WORKER1 TOT-WORKER1 TIME-WORKER1
+  TYPE-WORKER2 TOT-WORKER2 TIME-WORKER2
+]
+
+; breeds variables
+patients-own [
+  state           ; the states of a patient are: “searching-for”, "waiting", "moving", "working"
+
+  time-of-arrival ; time of entrance in the ED
+
+  next-task       ; next-task of a patient
+  urgency-level   ; Emergency Severity Index (1-red - very urgent, 2-yellow, 3-green, 4-white)
+
+  ; var used in a* algorithms
+  myvertex
+  myneighbors
+  destination-entrance
+  step-in-path ; variable used in a* algorithm
+  last-stop    ; variable used in a* algorithm
+  mypath       ; a list with the path to reach destination (next-task), as computed with a* algorithm
+
+  ; var used to track info of patients needed by patient in the task
+  p-wor-typ-1  p-wor-tot-1  p-wor-tim-1
+  p-wor-typ-2  p-wor-tot-2  p-wor-tim-2
+
+  p-working-with  ; list/set of workers
+
+  speed-walk      ; speed of patient movements
+
+  p-duration      ; duration of a task
+  delay-duration  ;
+  los             ; length of stay
+  dtdt            ; door-to-doctor-time
+]
+
+workers-own [
+  name         ; nurse or doctor
+  state        ; “searching-for”, "waiting", "moving", "working"
+
+  next-task    ;
+  working-with ; the patient a worker is working with
+  duration     ;
+
+  myvertex     ; a* algorithms
+  myneighbors  ;
+  destination-entrance
+
+  mypath       ; the path computed with a* algorithm
+  step-in-path ; variable used in a* algorithm
+  last-stop    ; variable used in a* algorithm
+
+  speed-walk   ; speed of worker movement
+  movetopass?  ; ---
+
+  kpi-init-work-time  ; kpi ---
+  kpi-tot-work-time   ;
+]
+
+vertices-own [
+  state        ; "empty" or "busy" ;; alwais "static", to avoid movement from procedure ask turtles...
+  name         ; the name of the task/vertex
+
+  lastvertex   ;  a* algorithms variables
+  myneighbors
+
+  done?
+  dist
+
+  ;list of patients/operators waiting to work
+  pat-w-l
+  op-w-l
+
+  ;information about workers
+  TYPE-WORKER-1 TOT-WORKER-1 TIME-WORKER-1
+  TYPE-WORKER-2 TOT-WORKER-2 TIME-WORKER-2
+]
+
+links-own [ weight ]  ; weight corresponds to duration of the walk in normal condition (secs)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;,;;;;;;;;;;;;;
+;;;;;;;;;;;;;                           SETUP                         ;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to setup     ; SETUP PROCEDURE FOLLOWS (AT THE BOTTOM)
+  ca         ; clear-all
+  nw:load-graphml "path.graphml" ; import the 3D graph
+
+;  nw:load-graphml "path.graphml"; import the 3D graph
+  setup-map       ; colorize map (ed3d file)
+  setup-patches   ; white color for place
+  setup-variables ; initialize main var
+  setup-workers   ; create-workers
+  zoom 110        ; zoom in the view
+  setup-monitor   ;
+  setup-arrivals  ;
+  reset-ticks     ; reset timer to 0
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;                    MAIN CYCLE                    ;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+to go
+  ; time procedures: run two functions in parallel to create time subunits (seconds)
+  run "modelAct"  run "observerAct"
+
+  ; stop conditon
+  if ticks > 0 and ticks = (525600) [ update-monitors-time stop ]   ; stop simulation at 525600 =>
+
+  ; new arrival of patients
+  if not empty? arrivi [   ; until list arrivi (created by oberveract procedure) is empty...
+    foreach arrivi [ new -> if seconds = new [ new-patient 1 ] ] ; create a new patient accordingly to time setted in arrivi list
+  ]
+
+  searching-agents   ;
+  moving-agents      ;
+
+  if seconds mod 3600 = 0 [ abandon-agents ] ; each hour patients evaluate if abandon the ED
+
+  working-agents
+  check-duration
+
+  if monit-hour mod 24 = 0 [ arrival-new-patients update-monitors-time ]
+end
+
+
+to new-patient[x]
+  create-patients x
+  [
+    set size 1.4 setxyz 51 (random 10 - 5) 0   ; dimenstion/initial position
+    set time-of-arrival seconds   ; save the initial time
+
+    set urgency-level compute-urgency        ; urgency level is randomly setted based on real distribution
+    set color color-by-urgency urgency-level ; turtle color reflects urgency level
+
+    set myvertex min-one-of vertices in-radius 100 [ distance myself ]  ; the nearest vertex to enter network of path in visualization
+
+    ifelse color != 15 [ set next-task "Registration" ]   ; --- face one-of vertices with [ name = "Registration" ]
+    [ set next-task "ShockRoom" ]
+
+    set p-working-with []
+    set state "searching"   ; the initial state of an agent is "searching"
+
+    insert-into-wl    ; at the beginning, patiens are inserted in waiting list
+  ]
+end
+
+to insert-into-wl   ; insert patient in waiting list of corresponging vertex
+  ask vertices with [ name = [next-task] of myself ]
+      [ set pat-w-l lput myself pat-w-l ]
+end
+
+to searching-agents
+  ; if any patch free, with at least one patient in LdA and the correspondig operator searching...
+  if any? vertices with [ state = "free"  and not empty? pat-w-l and item 0 pat-w-l != nobody]  ;;; and state = "free"  // and name != "PASS" Tolta perche state free solo per != da pass, quando si creano le patch.
+  [ ask one-of vertices with [ state = "free" and not empty? pat-w-l and item 0 pat-w-l != nobody] ;;; and state = "free"
+    [ if (count(workers with [state = "searching" and name = [TYPE-WORKER-1] of myself ]) >= TOT-WORKER-1
+        and count(workers with [state = "searching" and name = [TYPE-WORKER-2] of myself ]) >= TOT-WORKER-2)
+      [
+        let p select-patient turtle-set pat-w-l
+        ask vertices
+        [ if member? p pat-w-l [ set pat-w-l remove p pat-w-l ]
+        ]
+
+        let closest-worker-1 [] ; select workers to call
+
+        if TOT-WORKER-1 > 0
+        [ set closest-worker-1 min-n-of TOT-WORKER-1 workers with [state = "searching" and name = [TYPE-WORKER-1] of myself ] [distance p] ] ; != "addetto-registrazione" ] [distance p] ]
+        let closest-worker-2 []
+        if TOT-WORKER-2 > 0
+        [ set closest-worker-2 min-n-of TOT-WORKER-2 workers with [state = "searching" and name = [TYPE-WORKER-2] of myself ] [distance p] ]; != "addetto-registrazione" ] [distance p] ]
+
+        let closest-worker []
+        set closest-worker (turtle-set closest-worker-1 closest-worker-2)
+
+        ask p ; call patients
+        [
+          if member? vertex 4 vertices in-radius 6 [set patients-in-waiting-area patients-in-waiting-area - 1 ]
+          set p-working-with turtle-set closest-worker ;turtle-set myself
+
+          let selected-destination myself ; one-of vertices with [name = [next-task] of myself and state = "free" ] ;free?] ;patches with [task-name = [next-task] of myself and free?]
+                                          ; ask selected-destination [ set state "waiting" ];set free? false]
+          face selected-destination
+          A-star-algorithm selected-destination ; [entrance] of selected-destination
+
+          set state "moving" ;-to-task"
+          set speed-walk 1 ;/ [weight] of link ( [who] of selected-destination) ([who] of item step-in-path mypath)
+        ]
+
+        ask closest-worker ; call workers
+        [
+          ifelse myvertex != [destination-entrance] of p
+          [
+            A-star-algorithm [destination-entrance] of p
+            set state "moving" ;-to-task"
+            set speed-walk [speed-walk] of p   ;1 / [weight] of link (one-of [who] of vertices-here) ([who] of item step-in-path mypath)
+          ]
+          [
+            set state "waiting"
+          ]
+          set working-with p
+        ]
+
+        set state "busy"
+
+      ]
+    ]
+  ]
+end
+
+to moving-agents  ;; move patients or workers if they are in state = moving ;-to-task
+  ask turtles with [state = "moving"]
+  [ moveto destination-entrance ]
+end
+to moveto[d]
+  ifelse one-of vertices-here = d   ; check if agent is already on destination
+  [
+    set myvertex destination-entrance
+    set state "waiting"
+    if [name] of d = "WaitingArea"
+    [
+      set heading random 360  fd random 3.0   ; patients spread in the waiting area
+      insert-into-wl
+      set state "searching"
+      set patients-in-waiting-area patients-in-waiting-area + 1
+    ]
+    if breed = workers and movetopass?
+    [
+      set state "searching"
+      set movetopass? false
+    ]
+  ]
+  [
+    ifelse any? vertices-here and one-of vertices-here = item step-in-path mypath
+    [ ; agent is on an intermediate vertex in his path...
+      set step-in-path step-in-path + 1
+      face item step-in-path mypath     ;  ...so face to next vertex in their path
+    ]
+    [ ifelse see-mov? [fd speed-walk ][move-to item step-in-path mypath] ] ;if option setted to see mov.
+  ]
+end
+
+to abandon-agents
+  let pat-in-attesa 0
+  ask vertex 4 [set pat-in-attesa patients in-radius 5 ]
+  if count(pat-in-attesa) > 25
+  and
+  any? pat-in-attesa with [seconds - time-of-arrival > 3600 and color = 9.9]
+  [  ask one-of pat-in-attesa with [color = 9.9 and seconds - time-of-arrival > 3600 ][
+      if random 10 = 1 [  ; if more then 25 patients, someone would abandon
+        ask vertices [ if member? myself pat-w-l [ set pat-w-l remove myself pat-w-l ] ]
+        set monit-abandons monit-abandons + 1
+        die
+      ]
+    ]
+  ]
+end
+
+to working-agents ; check if workers and patients are ready to start working
+  ask patients with [state = "waiting"]
+  [
+    if (length filter [ i -> i = true ]  map [ x -> x = "waiting" ] [state] of p-working-with) = count p-working-with ;map [ x -> x = "waiting-on-task" ] [state] of p-working-with) = count p-working-with
+    [
+      if next-task = "ShockRoom" and color = 15 [
+      set monit-dtdt-esi1 ((monit-dtdt-esi1 * ( monit-dtdt-esi1 - 1)) + (seconds - time-of-arrival)  ) / (monit-dtdt-esi1 + 1)
+      ]
+
+      set state "working"
+
+      set p-duration seconds + (max (list [TIME-WORKER-1] of one-of vertices with [name = [next-task] of myself]  [TIME-WORKER-2] of one-of vertices with [name = [next-task] of myself] ))
+
+      ask p-working-with [
+        set duration [p-duration] of myself
+        set state "working"
+        if name != "addetto-registrazione" [ set kpi-init-work-time seconds ]
+      ]
+    ]
+  ]
+end
+
+to check-duration ; check DURATION to STOP working
+  ask workers with [ state = "working" and seconds = duration ] [
+    if name != "addetto-registrazione" [
+      set kpi-tot-work-time kpi-tot-work-time + (seconds - kpi-init-work-time)
+      set kpi-init-work-time 0
+    ]
+
+    ; move to first vertex named PASS and set "searching"
+    set movetopass? true
+
+    A-star-algorithm min-one-of vertices with [name = "PASS"] [distance myself]
+    set speed-walk 1 ;[speed-walk] of p ;1 / [weight] of link (one-of [who] of vertices-here) ([who] of item step-in-path mypath)
+    set state "moving"
+
+    set working-with ""
+  ]
+
+  ask patients with [ (state = "working" and seconds = p-duration)
+    or (state = "delay-waiting" and seconds = delay-duration) ]
+  [
+    ;if one-of [name] of vertices-here != "OBI" [print "FREE OBI"]
+
+    if next-task = "Visit"
+    [
+      set dtdt (seconds - time-of-arrival)
+      if set-monitor-dtdt? [ update-monitor-dtdt ] ;print (word color " -- " next-task)]
+    ]
+    ifelse next-task = "OBI"
+    [
+      set state "delay-waiting"  ; in OBI area, usually patients stay from 1h to 15h
+      set delay-duration seconds + 21600 + random 43200   ; 1h delay + 1 day  6h = 360 minuti +
+      set next-task REPORT-next-task-in-the-flow next-task
+   ][
+      ask vertices-here [ set state "free"]
+      set next-task REPORT-next-task-in-the-flow next-task
+
+      ifelse next-task = "end"
+      [
+        set p-dismissed p-dismissed + 1
+        set los (seconds - time-of-arrival)
+        if set-monitor-los? [ update-monitor-dismission-update ]
+        die
+        ]
+      [
+      ifelse color = 15
+        [
+          set state "searching"
+          insert-into-wl
+        ]
+        [
+          A-star-algorithm one-of vertices with [name = "WaitingArea"]; move patients to waiting area
+          set speed-walk 1  ;[speed-walk] of p ;1 / [weight] of link (one-of [who] of vertices-here) ([who] of item step-in-path mypath)
+          set state "moving"
+        ]
+      ]
+      reset-patient-variables
+    ]
+
+
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;                SETUP    PROCEDURES       ;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to setup-patches   ; white color for TASKS (name not "PASS")
+  ask vertices with [name != "PASS"] [
+    ask patches with [pxcor = [xcor] of myself and pycor = [ycor] of myself and pzcor = ([zcor] of myself - 1)] [
+      set pcolor white
+      set task-name [name] of myself
+      set entrance myself
+    ]
+    set state "free"
+  ]
+end
+
+to setup-variables
+  set-default-shape patients "person"
+  set-default-shape workers "person"
+
+  if label-of-tasks? [ask patches with [task-name != 0][set plabel task-name]]
+  if label-of-workers? [ask workers [set label state]]
+  set seconds 0
+  set patients-in-waiting-area 0
+  set arrivi []
+
+  ask vertices [
+      set pat-w-l [] set op-w-l []      ; waiting lists
+      ;set state "static"                ; to avoid they move
+      set myneighbors link-neighbors ]  ; used to calculate path
+
+  ifelse view-path? [ ask vertices [set hidden? false] ask links [set hidden? false]]
+  [ ask vertices [set hidden? true] ask links [set hidden? true] ]
+end
+
+to setup-workers
+  create-workers n-of-doctors [set name "doctor" set color blue setxyz -6 7 0 ]
+  create-workers n-of-nurses [set name "nurse" set color sky  setxyz 6 -7 0 ]
+  create-workers n-of-OSS [set name "oss" set color cyan setxyz 6 -9 0 ]
+  create-workers 1 [set name "addetto-registrazione" setxyz 37 0 0  set color gray]
+  ask workers [
+    set myvertex min-one-of vertices in-radius 100 [distance myself]
+    set state "searching"
+    set movetopass? false
+    set size 1.4
+  ]
+end
+
+to setup-monitor
+  set monitor-duration-ESI-1 0   set monitor-duration-ESI-2 0
+  set monitor-duration-ESI-3 0   set monitor-duration-ESI-4 0
+  set monit-abandons 0
+  ask workers [ set kpi-tot-work-time 0 set kpi-init-work-time 0 ]
+
+  set monit-wait-x-triage 0
+  set monit-wait-x-visit 0
+  set monit-wait-x-exam 0
+  set monit-wait-x-XRAY 0
+  set monit-wait-x-OBI 0
+  set monit-wait-x-Consult 0
+end
+
+to setup-arrivals
+  set expectedArrivalsArray []  ; empty vector for results
+
+  ; the vectors of the schedule
+  set rightIntervalLimitsStatic [6 8 12 15 18 22 24] ; time interval (ie, from 0 to 6, from 7 to 8, from 9 to 12 ecc.)
+  set expectedArrivalsPerIntervalStatic [7 12 34 19 30 20 5] ; avg expected patients in the time interval (ie, 7 patients between 0 to to 6, ecc.)
+
+  arrival-new-patients
+end
+
+to arrival-new-patients   ; starting a new day
+  set expectedArrivalsArray []
+  set rightIntervalLimits rightIntervalLimitsStatic
+  set expectedArrivalsPerInterval expectedArrivalsPerIntervalStatic
+  set leftIntervalLimit 0
+
+  let i 0
+  while [i < 24]
+  [
+    let r-limit first rightIntervalLimits
+    if i <= r-limit
+    [
+      set expectedArrivalsInAStep first expectedArrivalsPerInterval /
+      (first rightIntervalLimits - leftIntervalLimit)
+      set expectedArrivalsInAStepInt int expectedArrivalsInAStep
+      set fractionaryPart expectedArrivalsInAStep - expectedArrivalsInAStepInt
+    ]
+    let frac 0
+    if random-float 1 <= fractionaryPart [set frac 1]
+    set expectedArrivalsArray lput ( expectedArrivalsInAStepInt + frac) expectedArrivalsArray
+    if i = r-limit
+    [
+      set leftIntervalLimit first rightIntervalLimits
+      set rightIntervalLimits but-first rightIntervalLimits
+      set expectedArrivalsPerInterval but-first expectedArrivalsPerInterval
+    ]
+    set i i + 1
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;FUNCTIONS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to update-monitors-time   ; 1 tick = 1 minute
+  if seconds > 0 [
+    set monit-seconds seconds mod 60
+    if seconds mod 60 = 0 [set monit-minute monit-minute + 1
+      update-waiting-times
+    ]
+    if monit-minute = 60 [set monit-minute 0 set monit-hour monit-hour + 1 ]
+    if monit-hour = 24 [
+      set monit-hour 0 set monit-day monit-day + 1
+    ]
+    if monit-day = 365 [set monit-day 0 set monit-year monit-year + 1 ]
+  ]
+end
+
+to update-waiting-times
+  set monit-wait-x-triage length item 0 [pat-w-l] of vertices with [name = "Triage"]  ; n-patients-waiting
+  set monit-wait-x-visit length item 0 [pat-w-l] of vertices with [name = "Visit"]  ; n-patients-waiting
+  set monit-wait-x-exam length item 0 [pat-w-l] of vertices with [name = "Exam"]  ; n-patients-waiting
+  set monit-wait-x-XRAY length item 0 [pat-w-l] of vertices with [name = "XRAY"]  ; n-patients-waiting
+  set monit-wait-x-OBI length item 0 [pat-w-l] of vertices with [name = "OBI"]  ; n-patients-waiting
+  set monit-wait-x-Consult length item 0 [pat-w-l] of vertices with [name = "Consult"]  ; n-patients-waiting
+end
+
+to reset-patient-variables
+  set p-working-with nobody
+  set p-duration 0
+end
+
+to pat-acquire-info-workers
+  set p-wor-typ-1 [TYPE-WORKER-1] of one-of vertices with [name = [next-task] of myself]
+  set p-wor-tot-1 [TOT-WORKER-1] of one-of vertices with [name = [next-task] of myself]
+  set p-wor-tim-1 [TIME-WORKER-1] of one-of vertices with [name = [next-task] of myself] / 60
+  set p-wor-typ-2 [TYPE-WORKER-2] of one-of vertices with [name = [next-task] of myself]
+  set p-wor-tot-2 [TOT-WORKER-2] of one-of vertices with [name = [next-task] of myself]
+  set p-wor-tim-2 [TIME-WORKER-2] of one-of vertices with [name = [next-task] of myself] / 60
+end
+
+to-report select-patient [pp]
+  let pat ""
+  ifelse any? pp with [color = 15]
+  [ set pat one-of pp with [color = 15] ][
+    ifelse any? pp with [color = 45]
+    [ set pat one-of pp with [color = 45] ]
+    [ set pat one-of pp ]]
+  report pat
+end
+
+to-report compute-urgency
+  let r random 100
+    ifelse r < 10 [report 1]
+    [ ifelse r >= 10 and r < 35 [report 2]
+      [ ifelse r > 85 [report 4]
+        [ report 3 ]
+      ]
+    ]
+end
+
+to-report color-by-urgency[c]
+  ifelse c = 4 [report 9.9]
+  [ ifelse c = 3 [report 65]
+    [ ifelse c = 2 [report 45]
+      [ if c = 1 [report 15] ]]]
+end
+
+to-report REPORT-next-task-in-the-flow[x] ;define the flow between tasks
+  ifelse color = 15 [if x = "Registration" [report "ShockRoom"]]
+  [ if x = "Registration" [report "Triage"] ]
+  if x = "ShockRoom" [report "Exam"]
+  if x = "Triage" [report "Visit"]
+  if x = "Visit" [
+    let randomPerc random 100
+    report (ifelse-value (randomPerc <= 35) [ "Exam"]
+      randomPerc  > 36 and randomPerc <= 70 [ "Consult" ]
+      randomPerc  > 71 and randomPerc  <= 90 [ "Communicate" ] [ "OBI" ])
+  ]
+  if x = "Exam" [
+    let randomPerc random 100
+    report (ifelse-value randomPerc  <= 40 [ "Consult" ]
+      randomPerc  > 41 and randomPerc <= 80 [ "Communicate" ] [ "OBI" ])
+  ]
+  if x = "Consult" [
+    let randomPerc  random 100
+    report (ifelse-value randomPerc  < 90 [ "Communicate" ] [ "OBI" ])]
+  if x = "OBI" [report "Communicate"]
+  if x = "Communicate" [report "Dismission"]
+  if x = "Dismission" [report "end"]
+end
+
+to update-monitor-dismission-update
+  set monitor-duration-LoS  monitor-duration-LoS  + (los * ( los - 1 ) + los ) / p-dismissed
+
+  ifelse color = 9.9 [
+    set monitor-p-dismissed-ESI-4 monitor-p-dismissed-ESI-4 + 1
+    set monitor-duration-ESI-4 ((monitor-duration-ESI-4 * ( monitor-p-dismissed-ESI-4 - 1)) + los ) /  monitor-p-dismissed-ESI-4
+  ]
+  [
+    ifelse color = 65 [
+      set monitor-p-dismissed-ESI-3 monitor-p-dismissed-ESI-3 + 1
+      set monitor-duration-ESI-3 ((monitor-duration-ESI-3 * ( monitor-p-dismissed-ESI-3 - 1)) + los ) /  monitor-p-dismissed-ESI-3
+    ]
+    [
+      ifelse color = 45 [
+        set monitor-p-dismissed-ESI-2 monitor-p-dismissed-ESI-2 + 1
+        set monitor-duration-ESI-2 ((monitor-duration-ESI-2 * ( monitor-p-dismissed-ESI-2 - 1)) + los ) /  monitor-p-dismissed-ESI-2
+      ]
+        [
+        if color = 15 [
+          set monitor-p-dismissed-ESI-1 monitor-p-dismissed-ESI-1 + 1
+          set monitor-duration-ESI-1 ((monitor-duration-ESI-1 * ( monitor-p-dismissed-ESI-1 - 1)) + los ) / monitor-p-dismissed-ESI-1
+        ]
+      ]
+    ]
+  ]
+end
+
+to update-monitor-dtdt
+  set monit-dtdt monit-dtdt + (dtdt * ( dtdt - 1 ) + dtdt ) / (p-dismissed + 1)
+  ifelse color = 9.9 [
+    set monit-dtdt-esi4 ((monit-dtdt-esi4 * ( monit-dtdt-esi4 - 1)) + dtdt ) / (monit-dtdt-esi4 + 1)
+  ]
+  [
+    ifelse color = 65 [
+      set monit-dtdt-esi3 ((monit-dtdt-esi3 * ( monit-dtdt-esi3 - 1)) + dtdt ) / (monit-dtdt-esi3 + 1)
+    ]
+    [
+      if color = 45 [
+        set monit-dtdt-esi2 ((monit-dtdt-esi2 * ( monit-dtdt-esi2 - 1)) + dtdt ) / (monit-dtdt-esi2 + 1)
+         ]
+      ]
+    ]
+end
+
+to modelAct
+  if int(seconds / 60) = ticks ;or actAlsoIfObserverMissing
+     [set seconds seconds + 1 ]
+end
+
+to observerAct
+  if int(seconds / 60) - 1  >= ticks [
+    tick
+    if ticks mod 60 = 0 [
+      let i 0
+      set arrivi []
+      while [i < (item (monit-hour mod 24) expectedArrivalsArray)]
+      [
+        set arrivi lput (seconds + random 3600) arrivi   ; let val monit-hour + random 60
+        set i i + 1
+      ]
+    ]
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;                       A* Algorithm to find best path                            ;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+to A-star-algorithm [ dest-entr ]
+  ;compute the path to dest-entr and set the path in mypath
+  set destination-entrance dest-entr
+
+  set myvertex min-one-of vertices in-radius 100 [distance myself]
+
+  ;; apply the A-star algorithm to find the shortest path (shortest in terms of distance)
+  set mypath []       ; initialize mypath to include final path
+  set step-in-path 0  ; variable to count steps in the algorithm
+
+  ask vertices [          ; initialize variables for algorithm
+    set done? False       ; check if the node is not already done
+    set dist 99999        ;
+    set lastvertex nobody ;
+  ]
+
+  ask myvertex [ set dist 0 ] ; initially the distance to original vertex is 0
+
+  while [ count vertices with [ not done?  ] > 0 ]  ;and name != "WaitingArea" ] > 0 ]
+  [
+    ask vertices with [ dist < 99999 and not done? ]
+    [ ;
+      ask myneighbors [; with [name != "WaitingArea"] [
+        let dist0 [weight] of link-with myself + [dist] of myself ;distance myself + [dist] of myself ;; renew the shorstest distance to this point if it is smaller
+        if dist > dist0 [
+          set dist dist0         ;; -
+          set done? False        ;; done=0 if dist renewed, so that it will renew the dist of its neighbors
+          set lastvertex myself  ;; record the last vertex to reach here in the shortest path
+        ]
+      ]
+      set done? True  ;; set done 1, after it has renewed it neighbors
+    ]
+  ]
+
+  ;;put vertices in shortest path into a list
+  let x destination-entrance
+  while [x != myvertex] [
+    set mypath fput x mypath
+    set x [lastvertex] of x
+  ]
+
+  ;; prepare to move
+  set step-in-path 0
+  face item 0 mypath
+end
+@#$#@#$#@
+GRAPHICS-WINDOW
+0
+0
+2108
+1629
+-1
+-1
+20.0
+1
+10
+1
+1
+1
+0
+1
+1
+1
+-52
+52
+-40
+40
+-5
+5
+1
+0
+1
+ticks
+30.0
+
+BUTTON
+80
+373
+147
+415
+SETUP
+setup
+NIL
+1
+T
+OBSERVER
+NIL
+S
+NIL
+NIL
+1
+
+BUTTON
+170
+373
+233
+415
+GO
+go
+T
+1
+T
+OBSERVER
+NIL
+G
+NIL
+NIL
+1
+
+MONITOR
+1076
+593
+1168
+638
+NIL
+p-dismissed
+17
+1
+11
+
+MONITOR
+316
+70
+411
+115
+Avg. LoS ESI 1 
+monitor-duration-ESI-1
+1
+1
+11
+
+MONITOR
+316
+115
+411
+160
+Avg. LoS ESI 2
+monitor-duration-ESI-2
+1
+1
+11
+
+MONITOR
+316
+160
+411
+205
+Avg. LoS ESI 3
+monitor-duration-ESI-3
+1
+1
+11
+
+MONITOR
+316
+205
+411
+250
+Avg. LoS ESI 4
+monitor-duration-ESI-4
+1
+1
+11
+
+MONITOR
+1075
+548
+1189
+593
+NIL
+Monitor-duration-LoS
+2
+1
+11
+
+MONITOR
+402
+259
+507
+304
+N° Dismissed ESI 1
+monitor-p-dismissed-ESI-1
+17
+1
+11
+
+MONITOR
+402
+304
+507
+349
+N° Dismissed ESI 2
+monitor-p-dismissed-ESI-2
+17
+1
+11
+
+MONITOR
+402
+349
+507
+394
+N° Dismissed ESI 3
+monitor-p-dismissed-ESI-3
+17
+1
+11
+
+MONITOR
+402
+394
+507
+439
+N° Dismissed ESI 4
+monitor-p-dismissed-ESI-4
+17
+1
+11
+
+MONITOR
+316
+259
+402
+304
+N° Pat. ESI 1
+count patients with [ urgency-level = 1]
+17
+1
+11
+
+MONITOR
+316
+304
+402
+349
+N° Pat. ESI 2
+count patients with [ urgency-level = 2]
+17
+1
+11
+
+MONITOR
+316
+349
+402
+394
+N° Pat. ESI 3
+count patients with [ urgency-level = 3]
+17
+1
+11
+
+MONITOR
+316
+394
+402
+439
+N° Pat. ESI 4
+count patients with [ urgency-level = 4]
+17
+1
+11
+
+SLIDER
+30
+206
+148
+239
+n-of-doctors
+n-of-doctors
+1
+12
+3.0
+1
+1
+NIL
+HORIZONTAL
+
+SWITCH
+153
+103
+275
+136
+label-of-tasks?
+label-of-tasks?
+1
+1
+-1000
+
+SWITCH
+31
+136
+153
+169
+view-path?
+view-path?
+1
+1
+-1000
+
+SLIDER
+30
+239
+148
+272
+n-of-nurses
+n-of-nurses
+1
+20
+7.0
+1
+1
+NIL
+HORIZONTAL
+
+MONITOR
+615
+601
+944
+646
+NIL
+[kpi-tot-work-time] of workers with [name = \"doctor\"]
+17
+1
+11
+
+MONITOR
+339
+601
+613
+646
+NIL
+[kpi-tot-work-time] of workers with [name = \"nurse\"]
+17
+1
+11
+
+TEXTBOX
+192
+198
+217
+218
+KPI
+15
+125.0
+1
+
+SWITCH
+31
+103
+153
+136
+label-of-workers?
+label-of-workers?
+1
+1
+-1000
+
+MONITOR
+57
+46
+107
+91
+minutes
+monit-minute
+17
+1
+11
+
+MONITOR
+157
+46
+207
+91
+days
+monit-day
+17
+1
+11
+
+MONITOR
+207
+46
+257
+91
+weeks
+monit-weeks
+17
+1
+11
+
+MONITOR
+257
+46
+307
+91
+year
+monit-year
+17
+1
+11
+
+TEXTBOX
+9
+27
+51
+45
+TIME
+14
+125.0
+1
+
+MONITOR
+107
+46
+157
+91
+hours
+monit-hour
+17
+1
+11
+
+SWITCH
+153
+136
+275
+169
+see-mov?
+see-mov?
+0
+1
+-1000
+
+SLIDER
+30
+272
+148
+305
+n-of-oss
+n-of-oss
+0
+10
+3.0
+1
+1
+NIL
+HORIZONTAL
+
+TEXTBOX
+81
+10
+261
+30
+Emergency Department
+15
+104.0
+1
+
+BUTTON
+57
+647
+139
+680
+NIL
+modelAct
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+57
+681
+140
+714
+NIL
+observerAct
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+MONITOR
+7
+46
+57
+91
+seconds
+monit-seconds
+17
+1
+11
+
+MONITOR
+928
+496
+986
+541
+NIL
+seconds
+17
+1
+11
+
+MONITOR
+990
+497
+1069
+542
+w searching
+count workers with [state = \"searching\"]
+17
+1
+11
+
+MONITOR
+36
+427
+129
+472
+NIL
+count patients
+17
+1
+11
+
+MONITOR
+129
+427
+266
+472
+NIL
+patients-in-waiting-area
+17
+1
+11
+
+SWITCH
+184
+253
+315
+286
+set-monitor-dtdt?
+set-monitor-dtdt?
+0
+1
+-1000
+
+MONITOR
+411
+70
+508
+115
+NIL
+monit-dtdt-esi1
+1
+1
+11
+
+MONITOR
+411
+115
+508
+160
+NIL
+monit-dtdt-esi2
+1
+1
+11
+
+MONITOR
+411
+160
+508
+205
+NIL
+monit-dtdt-esi3
+1
+1
+11
+
+MONITOR
+411
+205
+508
+250
+NIL
+monit-dtdt-esi4
+1
+1
+11
+
+MONITOR
+1075
+502
+1157
+547
+NIL
+monit-dtdt
+17
+1
+11
+
+SWITCH
+184
+220
+315
+253
+set-monitor-los?
+set-monitor-los?
+0
+1
+-1000
+
+TEXTBOX
+35
+185
+148
+204
+RESOURCES
+15
+52.0
+1
+
+MONITOR
+171
+315
+264
+360
+NIL
+monit-abandons
+17
+1
+11
+
+SWITCH
+53
+321
+169
+354
+abandons?
+abandons?
+0
+1
+-1000
+
+TEXTBOX
+58
+611
+173
+643
+* Hidden bottons *\nto add time subunit 
+13
+0.0
+1
+
+MONITOR
+203
+490
+264
+535
+Visit
+monit-wait-x-Visit
+17
+1
+11
+
+MONITOR
+79
+490
+140
+535
+Triage
+monit-wait-x-Triage
+17
+1
+11
+
+MONITOR
+327
+490
+388
+535
+Exam
+monit-wait-x-exam
+17
+1
+11
+
+MONITOR
+141
+490
+202
+535
+XRay
+monit-wait-x-XRAY
+17
+1
+11
+
+MONITOR
+265
+490
+326
+535
+OBI
+monit-wait-x-OBI
+17
+1
+11
+
+MONITOR
+389
+490
+450
+535
+Consult
+monit-wait-x-Consult
+17
+1
+11
+
+MONITOR
+451
+490
+538
+535
+Communicate
+length item 0 [pat-w-l] of vertices with [name = \"Communicate\"]
+17
+1
+11
+
+TEXTBOX
+827
+505
+977
+523
+CANC:\n
+11
+0.0
+1
+
+@#$#@#$#@
+## WHAT IS IT?
+
+The model describes the functioning of an ED.
+Agents are: 
+- Patients (4 type of urgency, from very high - red, to very low - white) 
+- Workers (nurses, doctors and social operators).
+They move on the real map of the ED, in  a 3D environment. The path are imported from a graph file. Each path between wards/tasks is weighted 
+
+The actual process corresponds to the following image:
+![Image of the actual ED process in BPMN](ED-BPMN.PNG)
+
+
+## HOW IT WORKS
+
+One ticks corresponds to one minute. Each tick includes 60 unit of time, to reach precision of seconds.
+
+The rules of agents are:
+- Workers have a look to queues of the tasks they are involved. If there is (at least) a patient, they move to work
+- Patients are mostly reactive agents, moving between tasks and waiting area, from the arrival in the ED until the dismisson. They only decision involves abandon; a patient may decide to abandon with the following conditions:
+1. low urgency
+2. more than 25 patients in waiting-area
+3. a random value
+
+(what rules the agents use to create the overall behaviour of the model)
+
+## HOW TO USE IT
+
+Setup to create the environment, go to start the simulation after configuring different parameters.
+
+(how to use the model, including a description of each of the items in the Interface tab)
+
+## THINGS TO NOTICE
+
+(suggested things for the user to notice while running the model)
+
+## THINGS TO TRY
+
+(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
+
+## EXTENDING THE MODEL
+
+(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
+
+## NETLOGO FEATURES
+
+(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
+
+## RELATED MODELS
+
+(models in the NetLogo Models Library and elsewhere which are of related interest)
+
+## CREDITS AND REFERENCES
+
+(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
+@#$#@#$#@
+default
+true
+0
+Polygon -7500403 true true 150 5 40 250 150 205 260 250
+
+airplane
+true
+0
+Polygon -7500403 true true 150 0 135 15 120 60 120 105 15 165 15 195 120 180 135 240 105 270 120 285 150 270 180 285 210 270 165 240 180 180 285 195 285 165 180 105 180 60 165 15
+
+arrow
+true
+0
+Polygon -7500403 true true 150 0 0 150 105 150 105 293 195 293 195 150 300 150
+
+box
+false
+0
+Polygon -7500403 true true 150 285 285 225 285 75 150 135
+Polygon -7500403 true true 150 135 15 75 150 15 285 75
+Polygon -7500403 true true 15 75 15 225 150 285 150 135
+Line -16777216 false 150 285 150 135
+Line -16777216 false 150 135 15 75
+Line -16777216 false 150 135 285 75
+
+bug
+true
+0
+Circle -7500403 true true 96 182 108
+Circle -7500403 true true 110 127 80
+Circle -7500403 true true 110 75 80
+Line -7500403 true 150 100 80 30
+Line -7500403 true 150 100 220 30
+
+building store
+false
+0
+Rectangle -7500403 true true 30 45 45 240
+Rectangle -16777216 false false 30 45 45 165
+Rectangle -7500403 true true 15 165 285 255
+Rectangle -16777216 true false 120 195 180 255
+Line -7500403 true 150 195 150 255
+Rectangle -16777216 true false 30 180 105 240
+Rectangle -16777216 true false 195 180 270 240
+Line -16777216 false 0 165 300 165
+Polygon -7500403 true true 0 165 45 135 60 90 240 90 255 135 300 165
+Rectangle -7500403 true true 0 0 75 45
+Rectangle -16777216 false false 0 0 75 45
+
+butterfly
+true
+0
+Polygon -7500403 true true 150 165 209 199 225 225 225 255 195 270 165 255 150 240
+Polygon -7500403 true true 150 165 89 198 75 225 75 255 105 270 135 255 150 240
+Polygon -7500403 true true 139 148 100 105 55 90 25 90 10 105 10 135 25 180 40 195 85 194 139 163
+Polygon -7500403 true true 162 150 200 105 245 90 275 90 290 105 290 135 275 180 260 195 215 195 162 165
+Polygon -16777216 true false 150 255 135 225 120 150 135 120 150 105 165 120 180 150 165 225
+Circle -16777216 true false 135 90 30
+Line -16777216 false 150 105 195 60
+Line -16777216 false 150 105 105 60
+
+car
+false
+0
+Polygon -7500403 true true 300 180 279 164 261 144 240 135 226 132 213 106 203 84 185 63 159 50 135 50 75 60 0 150 0 165 0 225 300 225 300 180
+Circle -16777216 true false 180 180 90
+Circle -16777216 true false 30 180 90
+Polygon -16777216 true false 162 80 132 78 134 135 209 135 194 105 189 96 180 89
+Circle -7500403 true true 47 195 58
+Circle -7500403 true true 195 195 58
+
+circle
+false
+0
+Circle -7500403 true true 0 0 300
+
+circle 2
+false
+0
+Circle -7500403 true true 0 0 300
+Circle -16777216 true false 30 30 240
+
+cow
+false
+0
+Polygon -7500403 true true 200 193 197 249 179 249 177 196 166 187 140 189 93 191 78 179 72 211 49 209 48 181 37 149 25 120 25 89 45 72 103 84 179 75 198 76 252 64 272 81 293 103 285 121 255 121 242 118 224 167
+Polygon -7500403 true true 73 210 86 251 62 249 48 208
+Polygon -7500403 true true 25 114 16 195 9 204 23 213 25 200 39 123
+
+cylinder
+false
+0
+Circle -7500403 true true 0 0 300
+
+dot
+false
+0
+Circle -7500403 true true 90 90 120
+
+face happy
+false
+0
+Circle -7500403 true true 8 8 285
+Circle -16777216 true false 60 75 60
+Circle -16777216 true false 180 75 60
+Polygon -16777216 true false 150 255 90 239 62 213 47 191 67 179 90 203 109 218 150 225 192 218 210 203 227 181 251 194 236 217 212 240
+
+face neutral
+false
+0
+Circle -7500403 true true 8 7 285
+Circle -16777216 true false 60 75 60
+Circle -16777216 true false 180 75 60
+Rectangle -16777216 true false 60 195 240 225
+
+face sad
+false
+0
+Circle -7500403 true true 8 8 285
+Circle -16777216 true false 60 75 60
+Circle -16777216 true false 180 75 60
+Polygon -16777216 true false 150 168 90 184 62 210 47 232 67 244 90 220 109 205 150 198 192 205 210 220 227 242 251 229 236 206 212 183
+
+fish
+false
+0
+Polygon -1 true false 44 131 21 87 15 86 0 120 15 150 0 180 13 214 20 212 45 166
+Polygon -1 true false 135 195 119 235 95 218 76 210 46 204 60 165
+Polygon -1 true false 75 45 83 77 71 103 86 114 166 78 135 60
+Polygon -7500403 true true 30 136 151 77 226 81 280 119 292 146 292 160 287 170 270 195 195 210 151 212 30 166
+Circle -16777216 true false 215 106 30
+
+flag
+false
+0
+Rectangle -7500403 true true 60 15 75 300
+Polygon -7500403 true true 90 150 270 90 90 30
+Line -7500403 true 75 135 90 135
+Line -7500403 true 75 45 90 45
+
+flower
+false
+0
+Polygon -10899396 true false 135 120 165 165 180 210 180 240 150 300 165 300 195 240 195 195 165 135
+Circle -7500403 true true 85 132 38
+Circle -7500403 true true 130 147 38
+Circle -7500403 true true 192 85 38
+Circle -7500403 true true 85 40 38
+Circle -7500403 true true 177 40 38
+Circle -7500403 true true 177 132 38
+Circle -7500403 true true 70 85 38
+Circle -7500403 true true 130 25 38
+Circle -7500403 true true 96 51 108
+Circle -16777216 true false 113 68 74
+Polygon -10899396 true false 189 233 219 188 249 173 279 188 234 218
+Polygon -10899396 true false 180 255 150 210 105 210 75 240 135 240
+
+house
+false
+0
+Rectangle -7500403 true true 45 120 255 285
+Rectangle -16777216 true false 120 210 180 285
+Polygon -7500403 true true 15 120 150 15 285 120
+Line -16777216 false 30 120 270 120
+
+leaf
+false
+0
+Polygon -7500403 true true 150 210 135 195 120 210 60 210 30 195 60 180 60 165 15 135 30 120 15 105 40 104 45 90 60 90 90 105 105 120 120 120 105 60 120 60 135 30 150 15 165 30 180 60 195 60 180 120 195 120 210 105 240 90 255 90 263 104 285 105 270 120 285 135 240 165 240 180 270 195 240 210 180 210 165 195
+Polygon -7500403 true true 135 195 135 240 120 255 105 255 105 285 135 285 165 240 165 195
+
+line
+true
+0
+Line -7500403 true 150 0 150 300
+
+line half
+true
+0
+Line -7500403 true 150 0 150 150
+
+pentagon
+false
+0
+Polygon -7500403 true true 150 15 15 120 60 285 240 285 285 120
+
+person
+false
+0
+Circle -7500403 true true 110 5 80
+Polygon -7500403 true true 105 90 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285 180 195 195 90
+Rectangle -7500403 true true 127 79 172 94
+Polygon -7500403 true true 195 90 240 150 225 180 165 105
+Polygon -7500403 true true 105 90 60 150 75 180 135 105
+
+person doctor
+false
+0
+Polygon -7500403 true true 105 90 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285 180 195 195 90
+Polygon -13345367 true false 135 90 150 105 135 135 150 150 165 135 150 105 165 90
+Polygon -7500403 true true 105 90 60 195 90 210 135 105
+Polygon -7500403 true true 195 90 240 195 210 210 165 105
+Circle -7500403 true true 110 5 80
+Rectangle -7500403 true true 127 79 172 94
+Polygon -1 true false 105 90 60 195 90 210 114 156 120 195 90 270 210 270 180 195 186 155 210 210 240 195 195 90 165 90 150 150 135 90
+Line -16777216 false 150 148 150 270
+Line -16777216 false 196 90 151 149
+Line -16777216 false 104 90 149 149
+Circle -1 true false 180 0 30
+Line -16777216 false 180 15 120 15
+Line -16777216 false 150 195 165 195
+Line -16777216 false 150 240 165 240
+Line -16777216 false 150 150 165 150
+
+plant
+false
+0
+Rectangle -7500403 true true 135 90 165 300
+Polygon -7500403 true true 135 255 90 210 45 195 75 255 135 285
+Polygon -7500403 true true 165 255 210 210 255 195 225 255 165 285
+Polygon -7500403 true true 135 180 90 135 45 120 75 180 135 210
+Polygon -7500403 true true 165 180 165 210 225 180 255 120 210 135
+Polygon -7500403 true true 135 105 90 60 45 45 75 105 135 135
+Polygon -7500403 true true 165 105 165 135 225 105 255 45 210 60
+Polygon -7500403 true true 135 90 120 45 150 15 180 45 165 90
+
+sheep
+false
+15
+Circle -1 true true 203 65 88
+Circle -1 true true 70 65 162
+Circle -1 true true 150 105 120
+Polygon -7500403 true false 218 120 240 165 255 165 278 120
+Circle -7500403 true false 214 72 67
+Rectangle -1 true true 164 223 179 298
+Polygon -1 true true 45 285 30 285 30 240 15 195 45 210
+Circle -1 true true 3 83 150
+Rectangle -1 true true 65 221 80 296
+Polygon -1 true true 195 285 210 285 210 240 240 210 195 210
+Polygon -7500403 true false 276 85 285 105 302 99 294 83
+Polygon -7500403 true false 219 85 210 105 193 99 201 83
+
+square
+false
+0
+Rectangle -7500403 true true 30 30 270 270
+
+square 2
+false
+0
+Rectangle -7500403 true true 30 30 270 270
+Rectangle -16777216 true false 60 60 240 240
+
+star
+false
+0
+Polygon -7500403 true true 151 1 185 108 298 108 207 175 242 282 151 216 59 282 94 175 3 108 116 108
+
+target
+false
+0
+Circle -7500403 true true 0 0 300
+Circle -16777216 true false 30 30 240
+Circle -7500403 true true 60 60 180
+Circle -16777216 true false 90 90 120
+Circle -7500403 true true 120 120 60
+
+tree
+false
+0
+Circle -7500403 true true 118 3 94
+Rectangle -6459832 true false 120 195 180 300
+Circle -7500403 true true 65 21 108
+Circle -7500403 true true 116 41 127
+Circle -7500403 true true 45 90 120
+Circle -7500403 true true 104 74 152
+
+triangle
+false
+0
+Polygon -7500403 true true 150 30 15 255 285 255
+
+triangle 2
+false
+0
+Polygon -7500403 true true 150 30 15 255 285 255
+Polygon -16777216 true false 151 99 225 223 75 224
+
+truck
+false
+0
+Rectangle -7500403 true true 4 45 195 187
+Polygon -7500403 true true 296 193 296 150 259 134 244 104 208 104 207 194
+Rectangle -1 true false 195 60 195 105
+Polygon -16777216 true false 238 112 252 141 219 141 218 112
+Circle -16777216 true false 234 174 42
+Rectangle -7500403 true true 181 185 214 194
+Circle -16777216 true false 144 174 42
+Circle -16777216 true false 24 174 42
+Circle -7500403 false true 24 174 42
+Circle -7500403 false true 144 174 42
+Circle -7500403 false true 234 174 42
+
+turtle
+true
+0
+Polygon -10899396 true false 215 204 240 233 246 254 228 266 215 252 193 210
+Polygon -10899396 true false 195 90 225 75 245 75 260 89 269 108 261 124 240 105 225 105 210 105
+Polygon -10899396 true false 105 90 75 75 55 75 40 89 31 108 39 124 60 105 75 105 90 105
+Polygon -10899396 true false 132 85 134 64 107 51 108 17 150 2 192 18 192 52 169 65 172 87
+Polygon -10899396 true false 85 204 60 233 54 254 72 266 85 252 107 210
+Polygon -7500403 true true 119 75 179 75 209 101 224 135 220 225 175 261 128 261 81 224 74 135 88 99
+
+wheel
+false
+0
+Circle -7500403 true true 3 3 294
+Circle -16777216 true false 30 30 240
+Line -7500403 true 150 285 150 15
+Line -7500403 true 15 150 285 150
+Circle -7500403 true true 120 120 60
+Line -7500403 true 216 40 79 269
+Line -7500403 true 40 84 269 221
+Line -7500403 true 40 216 269 79
+Line -7500403 true 84 40 221 269
+
+wolf
+false
+0
+Polygon -16777216 true false 253 133 245 131 245 133
+Polygon -7500403 true true 2 194 13 197 30 191 38 193 38 205 20 226 20 257 27 265 38 266 40 260 31 253 31 230 60 206 68 198 75 209 66 228 65 243 82 261 84 268 100 267 103 261 77 239 79 231 100 207 98 196 119 201 143 202 160 195 166 210 172 213 173 238 167 251 160 248 154 265 169 264 178 247 186 240 198 260 200 271 217 271 219 262 207 258 195 230 192 198 210 184 227 164 242 144 259 145 284 151 277 141 293 140 299 134 297 127 273 119 270 105
+Polygon -7500403 true true -1 195 14 180 36 166 40 153 53 140 82 131 134 133 159 126 188 115 227 108 236 102 238 98 268 86 269 92 281 87 269 103 269 113
+
+x
+false
+0
+Polygon -7500403 true true 270 75 225 30 30 225 75 270
+Polygon -7500403 true true 30 75 75 30 270 225 225 270
+@#$#@#$#@
+NetLogo 3D 6.2.1
+@#$#@#$#@
+need-to-manually-make-preview-for-this-model
+@#$#@#$#@
+@#$#@#$#@
+<experiments>
+  <experiment name="SENSITIVITY-ANALYSIS-001" repetitions="1000" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>go</go>
+    <metric>length-of-stay--ESI-2</metric>
+    <enumeratedValueSet variable="see-mov?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="label-of-tasks?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="view-path?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="n-of-nurses">
+      <value value="6"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="label-of-workers?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="n-of-oss">
+      <value value="4"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="n-of-doctors">
+      <value value="3"/>
+      <value value="5"/>
+      <value value="7"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-monitors?">
+      <value value="true"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="experiment-base-1-giorno" repetitions="1" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <exitCondition>ticks = 1440</exitCondition>
+    <metric>monitor-duration-ESI-1  ; monitor-duration-ESI-2</metric>
+    <metric>length-of-stay--ESI-2   ;</metric>
+    <metric>monitor-duration-ESI-3</metric>
+    <metric>monitor-duration-ESI-4</metric>
+    <metric>monitor-p-dismissed-ESI-1</metric>
+    <metric>monitor-p-dismissed-ESI-2</metric>
+    <metric>monitor-p-dismissed-ESI-3</metric>
+    <metric>monitor-p-dismissed-ESI-4</metric>
+    <metric>patients-in-waiting-area</metric>
+    <enumeratedValueSet variable="see-mov?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="view-path?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="label-of-tasks?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="n-of-nurses">
+      <value value="7"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="n-of-oss">
+      <value value="3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="n-of-doctors">
+      <value value="3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="label-of-workers?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-monitors?">
+      <value value="false"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="experiment-base-1-mese-ext" repetitions="1" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>go</go>
+    <exitCondition>ticks = 43200</exitCondition>
+    <metric>monitor-duration-ESI-1  ; monitor-duration-ESI-2</metric>
+    <metric>length-of-stay--ESI-2   ;</metric>
+    <metric>monitor-duration-ESI-3</metric>
+    <metric>monitor-duration-ESI-4</metric>
+    <metric>monitor-p-dismissed-ESI-1</metric>
+    <metric>monitor-p-dismissed-ESI-2</metric>
+    <metric>monitor-p-dismissed-ESI-3</metric>
+    <metric>monitor-p-dismissed-ESI-4</metric>
+    <metric>patients-in-waiting-area</metric>
+    <enumeratedValueSet variable="see-mov?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="view-path?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="label-of-tasks?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="n-of-nurses">
+      <value value="7"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="n-of-oss">
+      <value value="3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="n-of-doctors">
+      <value value="3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="label-of-workers?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-monitors?">
+      <value value="false"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="experiment-base-1-week-10runs" repetitions="10" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>go</go>
+    <exitCondition>ticks = 10080</exitCondition>
+    <metric>monitor-duration-ESI-1  ; monitor-duration-ESI-2</metric>
+    <metric>length-of-stay--ESI-2   ;</metric>
+    <metric>monitor-duration-ESI-3</metric>
+    <metric>monitor-duration-ESI-4</metric>
+    <metric>monitor-p-dismissed-ESI-1</metric>
+    <metric>monitor-p-dismissed-ESI-2</metric>
+    <metric>monitor-p-dismissed-ESI-3</metric>
+    <metric>monitor-p-dismissed-ESI-4</metric>
+    <metric>patients-in-waiting-area</metric>
+    <enumeratedValueSet variable="see-mov?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="view-path?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="label-of-tasks?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="n-of-nurses">
+      <value value="7"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="n-of-oss">
+      <value value="3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="n-of-doctors">
+      <value value="3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="label-of-workers?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-monitors?">
+      <value value="false"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="experiment-base-4-week-10runs-DTDT-los" repetitions="10" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>go</go>
+    <exitCondition>ticks = 40320</exitCondition>
+    <metric>monit-dtdt</metric>
+    <metric>monit-dtdt-esi1</metric>
+    <metric>monit-dtdt-esi2</metric>
+    <metric>monit-dtdt-esi3</metric>
+    <metric>monit-dtdt-esi4</metric>
+    <metric>monitor-duration-LoS</metric>
+    <metric>monitor-duration-ESI-1  ; monitor-duration-ESI-2</metric>
+    <metric>length-of-stay--ESI-2   ;</metric>
+    <metric>monitor-duration-ESI-3</metric>
+    <metric>monitor-duration-ESI-4</metric>
+    <enumeratedValueSet variable="see-mov?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="view-path?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="label-of-tasks?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="n-of-nurses">
+      <value value="7"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="n-of-oss">
+      <value value="3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="n-of-doctors">
+      <value value="3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="label-of-workers?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-monitors?">
+      <value value="false"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="experiment-base-4-week-10runs-DTDT-los-1509" repetitions="10" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <exitCondition>ticks = 40320</exitCondition>
+    <metric>monit-dtdt</metric>
+    <metric>monit-dtdt-esi1</metric>
+    <metric>monit-dtdt-esi2</metric>
+    <metric>monit-dtdt-esi3</metric>
+    <metric>monit-dtdt-esi4</metric>
+    <metric>monitor-duration-LoS</metric>
+    <metric>monitor-duration-ESI-1  ; monitor-duration-ESI-2</metric>
+    <metric>length-of-stay--ESI-2   ;</metric>
+    <metric>monitor-duration-ESI-3</metric>
+    <metric>monitor-duration-ESI-4</metric>
+    <enumeratedValueSet variable="set-monitor-los?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-monitor-dtdt?">
+      <value value="true"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="experiment-base-4-week-10runs-DTDT-los-1509-with-abandons" repetitions="10" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <exitCondition>ticks = 40320</exitCondition>
+    <metric>monit-dtdt-esi1</metric>
+    <metric>monit-dtdt-esi2</metric>
+    <metric>monit-dtdt-esi3</metric>
+    <metric>monit-dtdt-esi4</metric>
+    <metric>monitor-duration-ESI-1</metric>
+    <metric>length-of-stay--ESI-2</metric>
+    <metric>monitor-duration-ESI-3</metric>
+    <metric>monitor-duration-ESI-4</metric>
+    <metric>monit-abandons</metric>
+    <enumeratedValueSet variable="set-monitor-los?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-monitor-dtdt?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="abandons?">
+      <value value="true"/>
+    </enumeratedValueSet>
+  </experiment>
+</experiments>
+@#$#@#$#@
+@#$#@#$#@
+default
+0.0
+-0.2 0 0.0 1.0
+0.0 1 1.0 0.0
+0.2 0 0.0 1.0
+link direction
+true
+0
+Line -7500403 true 150 150 90 180
+Line -7500403 true 150 150 210 180
+@#$#@#$#@
+0
+@#$#@#$#@

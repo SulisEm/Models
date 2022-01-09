@@ -1,0 +1,62 @@
+
+to build-walls 
+  ask patches [ set pname "" ]
+
+  if type-queue = "short"[
+  ask patches [
+    ;pavement
+    if pzcor = -1 or pzcor = 0  [set pcolor gray ]
+
+    if pxcor = -2 and pycor > -7 and pycor < 10 and pzcor = 1 [set pcolor wall-color ]
+    if pxcor = 2 and pycor >= -3 and pycor < 10 and pzcor = 1 [set pcolor wall-color ]
+    if pxcor = 6 and pycor > -7 and pycor < 7 and pzcor = 1 [set pcolor wall-color ]
+    if pxcor = 10 and pycor > -8 and pycor < 10 and pzcor = 1 [set pcolor wall-color ]
+
+    if pxcor >= 2 and pxcor <= 10 and pycor = 10 and pzcor >= 1 and pzcor < 2 [set pcolor wall-color ]
+    if pxcor >= -2 and pxcor <= 6 and pycor = -7 and pzcor >= 1 and pzcor < 2 [set pcolor wall-color ]
+
+    ;desk
+    if  pxcor > -10 and pxcor < 10 and pycor >= -13 and pycor < -11 and pzcor = 1 [ set pcolor brown ]
+
+    ;arrival (color and pname) and waiting line
+    if pxcor > -2 and pxcor < 2 and pycor = 10 and pzcor = 0 [set pcolor 6 ]
+    if pxcor > -2 and pxcor < 2 and pycor = 10 and pzcor = 1 [set pname "arrival" ]
+
+    if pxcor > 6 and pxcor < 10 and pycor = -8 and pzcor = 0 [set pcolor 6 ]
+    if pxcor > 6 and pxcor < 10 and pycor = -8 and pzcor = 1 [set pname "waiting-line" ]
+
+    ;two exits
+    if pxcor = -16 and pycor = -8 and pzcor = 1 [set pname "exit" set pcolor gray ]
+    if pxcor = 16 and pycor = -8 and pzcor = 1 [set pname "exit" set pcolor gray ]
+    ]
+  ]
+
+  if type-queue = "long"[
+  ask patches [
+    ;pavement
+    if pzcor = 0 or pzcor = -1  [set pcolor gray ]
+
+    if pxcor = -10 and pycor > -8 and pycor < 10 and pzcor = 1 [set pcolor wall-color ]  ;; only for long
+    if pxcor = -6 and pycor >= -3 and pycor < 10 and pzcor = 1 [set pcolor wall-color ]  ;; only for long
+    if pxcor = -2 and pycor > -7 and pycor < 7 and pzcor = 1 [set pcolor wall-color ]
+    if pxcor = 2 and pycor >= -3 and pycor < 10 and pzcor = 1 [set pcolor wall-color ]
+    if pxcor = 6 and pycor > -7 and pycor < 7 and pzcor = 1 [set pcolor wall-color ]
+    if pxcor = 10 and pycor > -8 and pycor < 10 and pzcor = 1 [set pcolor wall-color ]
+
+    if pxcor >= -6 and pxcor <= 10 and pycor = 10 and pzcor >= 1 and pzcor < 2 [set pcolor wall-color ]
+    if pxcor >= -10 and pxcor <= 6 and pycor = -7 and pzcor >= 1 and pzcor < 2 [set pcolor wall-color ]
+
+    ;desk
+    if  pxcor > -10 and pxcor < 10 and pycor >= -13 and pycor < -11 and pzcor = 1 [ set pcolor brown ]
+
+    if pxcor > -10 and pxcor < -6 and pycor = 10 and pzcor = 0 [set pcolor 6 ]
+    if pxcor > -9 and pxcor < -7 and pycor = 10 and pzcor = 1 [set pname "arrival" ]
+
+    if pxcor > 6 and pxcor < 10 and pycor = -8 and pzcor = 0 [set pcolor 6 ]
+    if pxcor > 6 and pxcor < 10 and pycor = -8 and pzcor = 1 [set pname "waiting-line" ]
+
+    if pxcor = -16 and pycor = -8 and pzcor = 1 [set pname "exit" set pcolor gray ]
+    if pxcor = 16 and pycor = -8 and pzcor = 1 [set pname "exit" set pcolor gray ]
+    ]
+  ]
+end

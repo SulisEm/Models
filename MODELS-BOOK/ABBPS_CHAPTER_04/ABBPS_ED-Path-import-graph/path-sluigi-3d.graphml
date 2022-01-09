@@ -1,0 +1,1600 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns/graphml"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns/graphml">
+
+<key id="NAME" for="node" attr.name="NAME" attr.type="string"/>
+<key id="YCOR" for="node" attr.name="YCOR" attr.type="double"/>
+<key id="XCOR" for="node" attr.name="XCOR" attr.type="double"/>
+<key id="ZCOR" for="node" attr.name="ZCOR" attr.type="double"/>
+<key id="BREED" for="node" attr.name="BREED" attr.type="string"/>
+<key id="SHAPE" for="node" attr.name="SHAPE" attr.type="string"/>
+<key id="COLOR" for="node" attr.name="COLOR" attr.type="integer"/>
+<key id="ENTRANCE?" for="node" attr.name="ENTRANCE?" attr.type="boolean"/>
+<key id="MYNEIGHBORS" for="node" attr.name="MYNEIGHBORS" attr.type="string"/>
+<key id="DIST" for="node" attr.name="DIST" attr.type="integer"/>
+<key id="DONE?" for="node" attr.name="DONE?" attr.type="boolean"/>
+<key id="LASTVERTEX" for="node" attr.name="LASTVERTEX" attr.type="string"/>
+
+<key id="TYPE-WORKER-1" for="node" attr.name="TYPE-WORKER-1" attr.type="string"/>
+<key id="TOT-WORKER-1" for="node" attr.name="TOT-WORKER-1" attr.type="integer"/>
+<key id="TIME-WORKER-1" for="node" attr.name="TIME-WORKER-1" attr.type="integer"/>
+
+<key id="TYPE-WORKER-2" for="node" attr.name="TYPE-WORKER-2" attr.type="string"/>
+<key id="TOT-WORKER-2" for="node" attr.name="TOT-WORKER-2" attr.type="integer"/>
+<key id="TIME-WORKER-2" for="node" attr.name="TIME-WORKER-2" attr.type="integer"/>
+
+<key id="TYPE-WORKER-3" for="node" attr.name="TYPE-WORKER-3" attr.type="string"/>
+<key id="TOT-WORKER-3" for="node" attr.name="TOT-WORKER-3" attr.type="integer"/>
+<key id="TIME-WORKER-3" for="node" attr.name="TIME-WORKER-3" attr.type="integer"/>
+
+
+<key id="COLOR" for="edge" attr.name="COLOR" attr.type="integer"/>
+<key id="WEIGHT" for="edge" attr.name="WEIGHT" attr.type="integer"/>
+
+<graph edgedefault="directed">
+<node id="vertex 0">
+  <data key="NAME">Entry-point</data>
+  <data key="XCOR">45</data>
+  <data key="YCOR">2</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">15</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+<node id="Registration">
+  <data key="NAME">Registration</data>
+  <data key="XCOR">37</data>
+  <data key="YCOR">0</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+
+
+    <data key="TYPE-WORKER-1">nurse</data>
+    <data key="TOT-WORKER-1">1</data>
+    <data key="TIME-WORKER-1">60</data>
+    <data key="TYPE-WORKER-2"></data>
+    <data key="TOT-WORKER-2">0</data>
+    <data key="TIME-WORKER-2">0</data>
+</node>
+<node id="vertex 2">
+  <data key="NAME">Triage</data>
+  <data key="XCOR">31</data>
+  <data key="YCOR">-3</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+
+  <data key="TYPE-WORKER-1">nurse</data>
+  <data key="TOT-WORKER-1">1</data>
+  <data key="TIME-WORKER-1">420</data>
+  <data key="TYPE-WORKER-2"></data>
+  <data key="TOT-WORKER-2">0</data>
+  <data key="TIME-WORKER-2">0</data>
+</node>
+<node id="vertex 3">
+  <data key="NAME">PASS</data>
+  <data key="XCOR">26</data>
+  <data key="YCOR">0</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+<node id="vertex 4">
+  <data key="NAME">Triage</data>
+
+  <data key="XCOR">26</data>
+  <data key="YCOR">3</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+
+  <data key="TYPE-WORKER-1">nurse</data>
+  <data key="TOT-WORKER-1">1</data>
+  <data key="TIME-WORKER-1">420</data>
+  <data key="TYPE-WORKER-2"></data>
+  <data key="TOT-WORKER-2">0</data>
+  <data key="TIME-WORKER-2">0</data>
+</node>
+
+<node id="vertex 5">
+  <data key="NAME">PASS</data>
+
+  <data key="XCOR">42</data>
+  <data key="YCOR">13</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+<node id="vertex 6">
+  <data key="NAME">PASS</data>
+
+  <data key="XCOR">35</data>
+  <data key="YCOR">16</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+<node id="vertex 7">
+  <data key="NAME">PASS</data>
+
+  <data key="XCOR">18</data>
+  <data key="YCOR">13</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+
+
+<node id="vertex 8">
+  <data key="NAME">PASS</data>
+
+  <data key="XCOR">16</data>
+  <data key="YCOR">26</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+<node id="vertex 9">
+  <data key="NAME">PASS</data>
+  <data key="XCOR">15</data>
+  <data key="YCOR">33</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+<node id="vertex 10">
+  <data key="NAME">Visit</data>
+  <data key="XCOR">6</data>
+  <data key="YCOR">23</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+
+      <data key="TYPE-WORKER-1">nurse</data>
+      <data key="TOT-WORKER-1">1</data>
+      <data key="TIME-WORKER-1">600</data>
+      <data key="TYPE-WORKER-2">doctor</data>
+      <data key="TOT-WORKER-2">1</data>
+      <data key="TIME-WORKER-2">900</data>
+</node>
+<node id="vertex 11">
+  <data key="NAME">Visit</data>
+
+  <data key="XCOR">7</data>
+  <data key="YCOR">34</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+
+        <data key="TYPE-WORKER-1">nurse</data>
+        <data key="TOT-WORKER-1">1</data>
+        <data key="TIME-WORKER-1">600</data>
+        <data key="TYPE-WORKER-2">doctor</data>
+        <data key="TOT-WORKER-2">1</data>
+        <data key="TIME-WORKER-2">900</data>
+
+</node>
+
+<node id="vertex 12">
+  <data key="NAME">WaitingArea</data>
+
+  <data key="XCOR">34</data>
+  <data key="YCOR">25</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+
+<node id="vertex 13">
+  <data key="NAME">Communicate</data>
+
+  <data key="XCOR">-9</data>
+  <data key="YCOR">13</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+
+      <data key="TYPE-WORKER-1">nurse</data>
+      <data key="TOT-WORKER-1">1</data>
+      <data key="TIME-WORKER-1">60</data>
+        <data key="TYPE-WORKER-2"></data>
+        <data key="TOT-WORKER-2">0</data>
+        <data key="TIME-WORKER-2">0</data>
+</node>
+
+<node id="vertex 14">
+  <data key="NAME">PASS</data>
+
+  <data key="XCOR">-12</data>
+  <data key="YCOR">29</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+<node id="vertex 15">
+  <data key="NAME">OBI</data>
+
+  <data key="XCOR">-19</data>
+  <data key="YCOR">34</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+
+        <data key="TYPE-WORKER-1">oss</data>
+        <data key="TOT-WORKER-1">1</data>
+        <data key="TIME-WORKER-1">240</data>
+          <data key="TYPE-WORKER-2">doctor</data>
+          <data key="TOT-WORKER-2">1</data>
+          <data key="TIME-WORKER-2">120</data>
+</node>
+
+<node id="vertex 16">
+  <data key="NAME">PASS</data>
+
+  <data key="XCOR">-23</data>
+  <data key="YCOR">30</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+<node id="vertex 17">
+  <data key="NAME">OBI</data>
+
+  <data key="XCOR">-26</data>
+  <data key="YCOR">34</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+
+  <data key="TYPE-WORKER-1">oss</data>
+  <data key="TOT-WORKER-1">1</data>
+  <data key="TIME-WORKER-1">240</data>
+    <data key="TYPE-WORKER-2">doctor</data>
+    <data key="TOT-WORKER-2">1</data>
+    <data key="TIME-WORKER-2">120</data>
+
+</node>
+<node id="vertex 18">
+  <data key="NAME">PASS</data>
+  <data key="XCOR">-30</data>
+  <data key="YCOR">30</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+<node id="vertex 19">
+  <data key="NAME">OBI</data>
+
+  <data key="XCOR">-33</data>
+  <data key="YCOR">34</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+
+  <data key="TYPE-WORKER-1">oss</data>
+  <data key="TOT-WORKER-1">1</data>
+  <data key="TIME-WORKER-1">240</data>
+    <data key="TYPE-WORKER-2">doctor</data>
+    <data key="TOT-WORKER-2">1</data>
+    <data key="TIME-WORKER-2">120</data>
+</node>
+<node id="vertex 20">
+  <data key="NAME">PASS</data>
+
+  <data key="XCOR">-37</data>
+  <data key="YCOR">31</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+<node id="vertex 21">
+  <data key="NAME">OBI</data>
+  <data key="XCOR">-40</data>
+  <data key="YCOR">34</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+
+  <data key="TYPE-WORKER-1">oss</data>
+  <data key="TOT-WORKER-1">1</data>
+  <data key="TIME-WORKER-1">240</data>
+    <data key="TYPE-WORKER-2">doctor</data>
+    <data key="TOT-WORKER-2">1</data>
+    <data key="TIME-WORKER-2">120</data>
+</node>
+<node id="vertex 22">
+  <data key="NAME">PASS</data>
+
+  <data key="XCOR">-43</data>
+  <data key="YCOR">31</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+</node>
+<node id="vertex 23">
+  <data key="NAME">OBI</data>
+
+  <data key="XCOR">-47</data>
+  <data key="YCOR">34</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+
+  <data key="TYPE-WORKER-1">nurse</data>
+  <data key="TOT-WORKER-1">1</data>
+  <data key="TIME-WORKER-1">240</data>
+    <data key="TYPE-WORKER-2">doctor</data>
+    <data key="TOT-WORKER-2">1</data>
+    <data key="TIME-WORKER-2">120</data>
+</node>
+
+<node id="vertex 24">
+  <data key="NAME">PASS</data>
+  <data key="XCOR">-22</data>
+  <data key="YCOR">23</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+<node id="vertex 25">
+  <data key="NAME">PASS</data>
+  <data key="XCOR">-32</data>
+  <data key="YCOR">22</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+<node id="vertex 26">
+  <data key="NAME">OBI</data>
+  <data key="XCOR">-40</data>
+  <data key="YCOR">23</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+<node id="vertex 27">
+  <data key="NAME">OBI</data>
+  <data key="XCOR">-48</data>
+  <data key="YCOR">23</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+
+<node id="vertex 28">
+  <data key="NAME">PASS</data>
+  <data key="XCOR">-32</data>
+  <data key="YCOR">11</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+
+<node id="vertex 29">
+  <data key="NAME">OBI</data>
+  <data key="XCOR">-40</data>
+  <data key="YCOR">14</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+
+  <data key="TYPE-WORKER-1">nurse</data>
+  <data key="TOT-WORKER-1">1</data>
+  <data key="TIME-WORKER-1">240</data>
+    <data key="TYPE-WORKER-2">doctor</data>
+    <data key="TOT-WORKER-2">1</data>
+    <data key="TIME-WORKER-2">120</data>
+</node>
+<node id="vertex 30">
+  <data key="NAME">OBI</data>
+  <data key="XCOR">-48</data>
+  <data key="YCOR">14</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+
+  <data key="TYPE-WORKER-1">nurse</data>
+  <data key="TOT-WORKER-1">1</data>
+  <data key="TIME-WORKER-1">240</data>
+    <data key="TYPE-WORKER-2">doctor</data>
+    <data key="TOT-WORKER-2">1</data>
+    <data key="TIME-WORKER-2">120</data>
+</node>
+<node id="vertex 31">
+  <data key="NAME">OBI</data>
+  <data key="XCOR">-48</data>
+  <data key="YCOR">8</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+
+  <data key="TYPE-WORKER-1">nurse</data>
+  <data key="TOT-WORKER-1">1</data>
+  <data key="TIME-WORKER-1">240</data>
+    <data key="TYPE-WORKER-2">doctor</data>
+    <data key="TOT-WORKER-2">1</data>
+    <data key="TIME-WORKER-2">120</data>
+</node>
+<node id="vertex 32">
+  <data key="NAME">OBI</data>
+  <data key="XCOR">-40</data>
+  <data key="YCOR">8</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+
+  <data key="TYPE-WORKER-1">nurse</data>
+  <data key="TOT-WORKER-1">1</data>
+  <data key="TIME-WORKER-1">240</data>
+    <data key="TYPE-WORKER-2">doctor</data>
+    <data key="TOT-WORKER-2">1</data>
+    <data key="TIME-WORKER-2">120</data>
+</node>
+
+<node id="vertex 33">
+  <data key="NAME">OBI</data>
+  <data key="XCOR">-26</data>
+  <data key="YCOR">14</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+
+  <data key="TYPE-WORKER-1">nurse</data>
+  <data key="TOT-WORKER-1">1</data>
+  <data key="TIME-WORKER-1">240</data>
+    <data key="TYPE-WORKER-2">doctor</data>
+    <data key="TOT-WORKER-2">1</data>
+    <data key="TIME-WORKER-2">120</data>
+</node>
+<node id="vertex 34">
+  <data key="NAME">OBI</data>
+  <data key="XCOR">-19</data>
+  <data key="YCOR">14</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+
+  <data key="TYPE-WORKER-1">nurse</data>
+  <data key="TOT-WORKER-1">1</data>
+  <data key="TIME-WORKER-1">240</data>
+    <data key="TYPE-WORKER-2">doctor</data>
+    <data key="TOT-WORKER-2">1</data>
+    <data key="TIME-WORKER-2">120</data>
+</node>
+<node id="vertex 35">
+  <data key="NAME">OBI</data>
+  <data key="XCOR">-26</data>
+  <data key="YCOR">8</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+
+  <data key="TYPE-WORKER-1">nurse</data>
+  <data key="TOT-WORKER-1">1</data>
+  <data key="TIME-WORKER-1">240</data>
+    <data key="TYPE-WORKER-2">doctor</data>
+    <data key="TOT-WORKER-2">1</data>
+    <data key="TIME-WORKER-2">120</data>
+</node>
+<node id="vertex 36">
+  <data key="NAME">OBI</data>
+  <data key="XCOR">-19</data>
+  <data key="YCOR">8</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+
+  <data key="TYPE-WORKER-1">nurse</data>
+  <data key="TOT-WORKER-1">1</data>
+  <data key="TIME-WORKER-1">240</data>
+    <data key="TYPE-WORKER-2">doctor</data>
+    <data key="TOT-WORKER-2">1</data>
+    <data key="TIME-WORKER-2">120</data>
+
+
+</node>
+
+<node id="vertex 37">
+  <data key="NAME">PASS</data>
+  <data key="XCOR">-9</data>
+  <data key="YCOR">25</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+
+
+<node id="vertex 38">
+  <data key="NAME">Communicate</data>
+  <data key="XCOR">-10</data>
+  <data key="YCOR">-10</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+
+
+    <data key="TYPE-WORKER-1">nurse</data>
+    <data key="TOT-WORKER-1">1</data>
+    <data key="TIME-WORKER-1">60</data>
+      <data key="TYPE-WORKER-2"></data>
+      <data key="TOT-WORKER-2">0</data>
+      <data key="TIME-WORKER-2">0</data>
+</node>
+
+
+<node id="vertex 39">
+  <data key="NAME">PASS</data>
+  <data key="XCOR">-23</data>
+  <data key="YCOR">-10</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+<node id="vertex 40">
+  <data key="NAME">PASS</data>
+
+  <data key="XCOR">-33</data>
+  <data key="YCOR">-9</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+<node id="vertex 41">
+  <data key="NAME">PASS</data>
+
+  <data key="XCOR">-35</data>
+  <data key="YCOR">-2</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+<node id="vertex 42">
+
+  <data key="NAME">Consult</data>
+
+  <data key="XCOR">-43</data>
+  <data key="YCOR">-1</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+
+    <data key="TYPE-WORKER-1">doctor</data>
+    <data key="TOT-WORKER-1">1</data>
+    <data key="TIME-WORKER-1">1200</data>
+    <data key="TYPE-WORKER-2"></data>
+    <data key="TOT-WORKER-2">0</data>
+    <data key="TIME-WORKER-2">0</data>
+</node>
+<node id="vertex 43">
+  <data key="NAME">PASS</data>
+
+  <data key="XCOR">-34</data>
+  <data key="YCOR">-20</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+</node>
+<node id="vertex 44">
+  <data key="NAME">PASS</data>
+
+  <data key="XCOR">-40</data>
+  <data key="YCOR">-20</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+
+      <data key="TYPE-WORKER-1">nurse</data>
+      <data key="TOT-WORKER-1">1</data>
+      <data key="TIME-WORKER-1">10</data>
+        <data key="TYPE-WORKER-2"></data>
+        <data key="TOT-WORKER-2">0</data>
+        <data key="TIME-WORKER-2">0</data>
+</node>
+<node id="vertex 45">
+  <data key="NAME">XRAY</data>
+
+  <data key="XCOR">-27</data>
+  <data key="YCOR">-21</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+
+
+<node id="vertex 46">
+  <data key="NAME">PASS</data>
+
+  <data key="XCOR">-7</data>
+  <data key="YCOR">-20</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+<node id="vertex 47">
+  <data key="NAME">PASS</data>
+
+  <data key="XCOR">-7</data>
+  <data key="YCOR">-27</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+<node id="vertex 48">
+  <data key="NAME">PASS</data>
+
+  <data key="XCOR">-6</data>
+  <data key="YCOR">-33</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+
+
+<node id="vertex 49">
+  <data key="NAME">PASS</data>
+
+  <data key="XCOR">18</data>
+  <data key="YCOR">-10</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+
+
+<node id="vertex 50">
+  <data key="XCOR">18</data>
+  <data key="YCOR">-20</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+<node id="vertex 51">
+  <data key="NAME">PASS</data>
+
+  <data key="XCOR">18</data>
+  <data key="YCOR">-26</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+<node id="vertex 52">
+  <data key="NAME">PASS</data>
+
+  <data key="XCOR">18</data>
+  <data key="YCOR">-32</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+<node id="vertex 53">
+  <data key="NAME">Visit</data>
+
+  <data key="XCOR">5</data>
+  <data key="YCOR">-19</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+
+      <data key="TYPE-WORKER-1">nurse</data>
+      <data key="TOT-WORKER-1">1</data>
+      <data key="TIME-WORKER-1">600</data>
+      <data key="TYPE-WORKER-2">doctor</data>
+      <data key="TOT-WORKER-2">1</data>
+      <data key="TIME-WORKER-2">900</data>
+</node>
+<node id="vertex 54">
+  <data key="NAME">Visit</data>
+
+  <data key="XCOR">5</data>
+  <data key="YCOR">-28</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+
+      <data key="TYPE-WORKER-1">nurse</data>
+      <data key="TOT-WORKER-1">1</data>
+      <data key="TIME-WORKER-1">600</data>
+      <data key="TYPE-WORKER-2">doctor</data>
+      <data key="TOT-WORKER-2">1</data>
+      <data key="TIME-WORKER-2">900</data>
+</node>
+<node id="vertex 55">
+  <data key="NAME">Visit</data>
+
+  <data key="XCOR">5</data>
+  <data key="YCOR">-36</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+
+    <data key="TYPE-WORKER-1">nurse</data>
+    <data key="TOT-WORKER-1">1</data>
+    <data key="TIME-WORKER-1">600</data>
+    <data key="TYPE-WORKER-2">doctor</data>
+    <data key="TOT-WORKER-2">1</data>
+    <data key="TIME-WORKER-2">900</data>
+</node>
+<node id="vertex 56">
+  <data key="NAME">PASS</data>
+
+  <data key="XCOR">26</data>
+  <data key="YCOR">-22</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+</node>
+
+<node id="vertex 57">
+  <data key="NAME">ShockRoom</data>
+
+  <data key="XCOR">32</data>
+  <data key="YCOR">-19</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+
+    <data key="TYPE-WORKER-1">doctor</data>
+    <data key="TOT-WORKER-1">1</data>
+   <data key="TIME-WORKER-1">900</data>
+    <data key="TYPE-WORKER-2"></data>
+    <data key="TOT-WORKER-2">0</data>
+    <data key="TIME-WORKER-2">0</data>
+</node>
+
+<node id="vertex 58">
+  <data key="NAME">Obituary</data>
+
+  <data key="XCOR">40</data>
+  <data key="YCOR">-31</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+<node id="vertex 59">
+  <data key="NAME">PASS</data>
+  <data key="XCOR">39</data>
+  <data key="YCOR">-22</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+<node id="vertex 60">
+  <data key="NAME">PASS</data>
+
+  <data key="XCOR">40</data>
+  <data key="YCOR">-10</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+<node id="vertex 61">
+  <data key="NAME">Exam</data>
+
+  <data key="XCOR">-23</data>
+  <data key="YCOR">-5</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+  <data key="TYPE-WORKER-1">nurse</data>
+  <data key="TOT-WORKER-1">1</data>
+  <data key="TIME-WORKER-1">900</data>
+    <data key="TYPE-WORKER-2"></data>
+    <data key="TOT-WORKER-2">0</data>
+    <data key="TIME-WORKER-2">0</data>
+</node>
+
+<node id="vertex 62">
+  <data key="NAME">PASS</data>
+  <data key="XCOR">18</data>
+  <data key="YCOR">2</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+</node>
+
+<node id="vertex 63">
+  <data key="NAME">Dismission</data>
+  <data key="XCOR">6</data>
+  <data key="YCOR">1</data>
+  <data key="ZCOR">0</data>
+  <data key="BREED">vertices</data>
+  <data key="SHAPE">dot</data>
+  <data key="COLOR">35</data>
+  <data key="ENTRANCE?"></data>
+  <data key="MYNEIGHBORS"></data>
+  <data key="DIST"></data>
+  <data key="DONE?"></data>
+  <data key="LASTVERTEX"></data>
+
+        <data key="TYPE-WORKER-1">nurse</data>
+        <data key="TOT-WORKER-1">1</data>
+        <data key="TIME-WORKER-1">240</data>
+        <data key="TYPE-WORKER-2"></data>
+        <data key="TOT-WORKER-2">0</data>
+        <data key="TIME-WORKER-2">0</data>
+</node>
+
+
+
+
+
+
+
+
+<edge source="vertex 0" target="Registration">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="Registration" target="vertex 2">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 2" target="vertex 3">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 3" target="vertex 4">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="Registration" target="vertex 3">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+
+
+<edge source="vertex 5" target="vertex 0">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 5" target="Registration">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+
+<edge source="vertex 5" target="vertex 6">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 6" target="vertex 7">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 7" target="vertex 8">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge><edge source="vertex 9" target="vertex 8">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 8" target="vertex 10">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 11" target="vertex 9">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+
+<edge source="vertex 12" target="vertex 6">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+
+<edge source="vertex 7" target="vertex 13">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+
+<edge source="vertex 13" target="vertex 37">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 37" target="vertex 14">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 14" target="vertex 15">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 16" target="vertex 15">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 16" target="vertex 17">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 17" target="vertex 18">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 18" target="vertex 19">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 19" target="vertex 20">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 20" target="vertex 21">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 21" target="vertex 22">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 22" target="vertex 23">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 22" target="vertex 20">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 18" target="vertex 20">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 16" target="vertex 18">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 16" target="vertex 14">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+
+<edge source="vertex 24" target="vertex 14">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 24" target="vertex 25">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 26" target="vertex 25">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 26" target="vertex 27">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+
+<edge source="vertex 26" target="vertex 22">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 25" target="vertex 20">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 26" target="vertex 20">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 25" target="vertex 18">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 24" target="vertex 18">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 24" target="vertex 16">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+
+
+<edge source="vertex 25" target="vertex 28">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+
+<edge source="vertex 29" target="vertex 28">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 29" target="vertex 30">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 30" target="vertex 31">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 31" target="vertex 32">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 32" target="vertex 29">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 32" target="vertex 30">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 31" target="vertex 29">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 32" target="vertex 28">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+
+<edge source="vertex 28" target="vertex 33">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 33" target="vertex 34">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 34" target="vertex 35">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 33" target="vertex 35">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 35" target="vertex 34">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 35" target="vertex 36">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 33" target="vertex 36">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 35" target="vertex 28">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 34" target="vertex 36">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+
+<edge source="vertex 34" target="vertex 13">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 36" target="vertex 13">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 14" target="vertex 11">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 10" target="vertex 37">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+
+
+<edge source="vertex 38" target="vertex 13">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+
+
+<edge source="vertex 38" target="vertex 39">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 39" target="vertex 40">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 40" target="vertex 41">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 41" target="vertex 42">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 40" target="vertex 43">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 43" target="vertex 44">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 43" target="vertex 45">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+
+
+<edge source="vertex 46" target="vertex 38">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 46" target="vertex 47">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 47" target="vertex 48">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+
+
+
+<edge source="vertex 38" target="vertex 49">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+
+<edge source="vertex 50" target="vertex 49">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 51" target="vertex 50">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 52" target="vertex 51">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 50" target="vertex 53">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 51" target="vertex 54">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 52" target="vertex 55">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 50" target="vertex 56">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 57" target="vertex 56">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 53" target="vertex 46">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 55" target="vertex 48">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 54" target="vertex 47">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+
+<edge source="vertex 49" target="vertex 60">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+
+<edge source="vertex 58" target="vertex 59">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 59" target="vertex 60">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 59" target="vertex 57">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 61" target="vertex 39">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+
+
+<edge source="Registration" target="vertex 60">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+
+<edge source="vertex 0" target="vertex 60">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+
+
+<edge source="vertex 62" target="vertex 63">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 62" target="vertex 7">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+<edge source="vertex 62" target="vertex 49">
+  <data key="COLOR">15</data>
+  <data key="WEIGHT">1</data>
+</edge>
+
+
+</graphml>
